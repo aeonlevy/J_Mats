@@ -1,0 +1,30 @@
+
+service = Service("/opt/homebrew/bin/chromedriver")
+
+
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+url = "https://www.tokyoscope.blog/p/the-best-japanese-street-style-from-008"
+headers = {"User-Agent": "Mozilla/5.0"}
+response = requests.get(url, headers=headers)
+soup = BeautifulSoup(response.text, "html.parser")
+articles = soup.find_all("article")
+
+data = []
+
+for article in articles:
+    try:
+        title = article.find("h2").text.strip()
+        link = article.find("a")["href"]
+        img_url = article.find("img")["src"]
+        
+        data.append({"title": title, "link": link, "image": img_url})
+    except:
+        continue
+
+# Save to CSV
+df = pd.DataFrame(data)
+df.to_csv("tokyo_fashion_data.csv", index=False)
+
+     
